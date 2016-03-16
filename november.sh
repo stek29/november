@@ -1,11 +1,12 @@
 #!/bin/bash
 
-configfile='november.conf'
+configfile="$HOME/.november.conf"
 configfile_secured='/tmp/november.cfg'
 nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 last_path="$nov_dir/last"
 
 if [ "$1" == "help" ] || [ "$1" == '' ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    echo "November -- a simple screenshooting utility"
     echo "Usage: $(basename $0) [option]"
     echo
     echo "Options:"
@@ -17,6 +18,35 @@ if [ "$1" == "help" ] || [ "$1" == '' ] || [ "$1" == "--help" ] || [ "$1" == "-h
     exit
 fi
 
+depend() {
+    if ! command -v "$1" >/dev/null; then
+        echo "You don't have $1 installed but it is required for November"
+        echo
+        echo "Dependencies for taking screenshots:"
+        echo "  maim, slop"
+        echo "Optional dependencies:"
+        echo "  xclip (for copying to clipboard),"
+        echo "  imagemagick (for shadows on screenshots),"
+        echo "  notify-send (for notifications)"
+        echo
+        echo "Dependencies for recording videos:"
+        echo "  ffmpeg"
+        echo "Optional dependencies:"
+        echo "  notify-send (for notifications)"
+        exit 1
+    fi
+}
+
+depend "maim"
+depend "slop"
+
+if [ ! -f $configfile ]; then
+    echo "No configuration file found, I've created one for you at $configfile"
+    echo "Please edit the configuration and start November again"
+    cp "$nov_dir/november.sample.conf" "$configfile"
+    exit 1
+fi
+
 if egrep -q -v '^#|^[^ ]*=[^;]*' "$configfile"; then
     egrep '^#|^[^ ]*=[^;&]*'  "$configfile" > "$configfile_secured"
     configfile="$configfile_secured"
@@ -24,7 +54,7 @@ fi
 
 source "$configfile"
 
-timestamp=`date +Screenshot_%Y%m%d_%H%M%S`
+timestamp=$screenshot_prefix`date +%Y%m%d_%H%M%S`
 file="$screenshots_dir/$timestamp.png"
     
 case $1 in
@@ -55,8 +85,13 @@ case $1 in
         ;;
 esac
 
-xclip -selection clipboard -t image/png < $file
-notify-send 'Screenshot' "Saved to $file!"
+if command -v "xclip" >/dev/null; then
+    xclip -selection clipboard -t image/png < $file
+fi
+
+if command -v "notify-send" >/dev/null; then
+   notify-send 'Screenshot' "Saved to $file!"
+fi
 echo "$file" > $last_path
 exit $code
 
