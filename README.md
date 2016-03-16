@@ -13,6 +13,7 @@ An extremely simple screenshooting and screen recording tool (frontend for maim 
 Dependencies for taking screenshots:
  - maim
  - slop
+
 Optional dependencies:
  - xclip (for copying to clipboard)
  - imagemagick (for shadows on screenshots)
