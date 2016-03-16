@@ -20,6 +20,7 @@ Optional dependencies:
 
 Dependencies for recording videos:
  - ffmpeg
+
 Optional dependencies:
  - notify-send (for notifications)
  
