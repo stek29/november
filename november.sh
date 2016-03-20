@@ -2,7 +2,7 @@
 
 configfile="$HOME/.november.conf"
 nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-last_path="$nov_dir/last"
+last_path="$nov_dir/last_shot"
 
 if [ "$1" == "help" ] || [ "$1" == '' ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
     echo "November -- a simple screenshooting utility"

@@ -27,5 +27,6 @@ Optional dependencies:
  
 ## Roadmap
  - [x] Add ability to record part-screen videos
- - [ ] Add Imgur integration
+ - [x] Add Imgur integration
  - [ ] Add Telegram integration
+ - [ ] Add Rofi menu integration
