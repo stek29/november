@@ -26,6 +26,6 @@ Optional dependencies:
  - notify-send (for notifications)
  
 ## Roadmap
- - [ ] Add ability to record part-screen videos
+ - [x] Add ability to record part-screen videos
  - [ ] Add Imgur integration
  - [ ] Add Telegram integration

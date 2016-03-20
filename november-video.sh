@@ -1,7 +1,6 @@
 #!/bin/bash
 
 configfile="$HOME/.november.conf"
-configfile_secured='/tmp/november.cfg'
 nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 last_path="$nov_dir/last_cast"
 pid_path="$nov_dir/ffmpeg_pid"
@@ -14,8 +13,10 @@ if [ "$1" == "help" ] || [ "$1" == '' ] || [ "$1" == "--help" ] || [ "$1" == "-h
     echo
     echo "Options:"
     echo "  record"
+    echo "  record-selection"
     echo "  stop"
     echo "  toggle"
+    echo "  toggle-selection"
     echo
     echo "You need to configure November before usage, see https://github.com/nibogd/november"
     exit
@@ -33,7 +34,7 @@ depend() {
         echo "  notify-send (for notifications)"
         echo
         echo "Dependencies for recording videos:"
-        echo "  ffmpeg"
+        echo "  ffmpeg, slop"
         echo "Optional dependencies:"
         echo "  notify-send (for notifications)"
         exit 1
@@ -41,17 +42,13 @@ depend() {
 }
 
 depend "ffmpeg"
+depend "slop"
 
 if [ ! -f $configfile ]; then
     echo "No configuration file found, I've created one for you at $configfile"
     echo "Please edit the configuration and start November again"
     cp "$nov_dir/november.sample.conf" "$configfile"
     exit 1
-fi
-
-if egrep -q -v '^#|^[^ ]*=[^;]*' "$configfile"; then
-    egrep '^#|^[^ ]*=[^;&]*'  "$configfile" > "$configfile_secured"
-    configfile="$configfile_secured"
 fi
 
 source "$configfile"
@@ -63,6 +60,21 @@ case $1 in
             file="$screenshots_dir/$timestamp.$video_format"
 
             nohup ffmpeg -video_size $resolution -framerate 25 -f x11grab -i :0.0+0,0 $file >/dev/null 2>&1 &
+            PID="$!"
+            echo $PID > $pid_path
+            echo $file > $last_path
+        else
+            echo "Already recording a video. If not, just delete the $pid_path file."
+            exit 1
+        fi
+        ;;
+    record-selection)
+        if [ ! -f $pid_path ] || [ "`cat $pid_path`" == '' ]; then
+            timestamp=$screencast_prefix`date +%Y%m%d_%H%M%S`
+            file="$screenshots_dir/$timestamp.$video_format"
+
+            eval $(slop)
+            nohup ffmpeg -video_size "$W"x"$H" -framerate 25 -f x11grab -i :0.0+$X,$Y $file >/dev/null 2>&1 &
             PID="$!"
             echo $PID > $pid_path
             echo $file > $last_path
@@ -89,6 +101,24 @@ case $1 in
             file="$screenshots_dir/$timestamp.$video_format"
 
             nohup ffmpeg -video_size $resolution -framerate 25 -f x11grab -i :0.0+0,0 $file >/dev/null 2>&1 &
+            PID="$!"
+            echo $PID > $pid_path
+            echo $file > $last_path
+        else
+            kill "`cat $pid_path`"
+            echo "" > $pid_path
+            if command -v "notify-send" >/dev/null; then
+                notify-send 'Screencast' "Saved to `cat $last_path`!"
+            fi
+        fi
+        ;;
+    toggle-selection)
+        if [ ! -f $pid_path ] || [ "`cat $pid_path`" == '' ]; then
+            timestamp=$screencast_prefix`date +%Y%m%d_%H%M%S`
+            file="$screenshots_dir/$timestamp.$video_format"
+
+            eval $(slop)
+            nohup ffmpeg -video_size "$W"x"$H" -framerate 25 -f x11grab -i :0.0+$X,$Y $file >/dev/null 2>&1 &
             PID="$!"
             echo $PID > $pid_path
             echo $file > $last_path

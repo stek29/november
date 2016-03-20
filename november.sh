@@ -1,7 +1,6 @@
 #!/bin/bash
 
 configfile="$HOME/.november.conf"
-configfile_secured='/tmp/november.cfg'
 nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 last_path="$nov_dir/last"
 
@@ -30,7 +29,7 @@ depend() {
         echo "  notify-send (for notifications)"
         echo
         echo "Dependencies for recording videos:"
-        echo "  ffmpeg"
+        echo "  ffmpeg, slop"
         echo "Optional dependencies:"
         echo "  notify-send (for notifications)"
         exit 1
@@ -45,11 +44,6 @@ if [ ! -f $configfile ]; then
     echo "Please edit the configuration and start November again"
     cp "$nov_dir/november.sample.conf" "$configfile"
     exit 1
-fi
-
-if egrep -q -v '^#|^[^ ]*=[^;]*' "$configfile"; then
-    egrep '^#|^[^ ]*=[^;&]*'  "$configfile" > "$configfile_secured"
-    configfile="$configfile_secured"
 fi
 
 source "$configfile"
