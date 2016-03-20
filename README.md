@@ -1,13 +1,15 @@
 # November (WORK IN PROGRESS)
 An extremely simple screenshooting and screen recording tool (frontend for maim and ffmpeg)
 
-![A sample screenshot](http://i.imgur.com/bi6PF4H.png?1)
+![A sample screenshot](http://i.imgur.com/qiTVix7.png)
 
 ## Features
  - Configure only once, no need to pass parameters each time
  - Add shadows to your screenshots
  - Capture the whole screen, a window or selection
- - Record videos via ffmpeg (currently only whole screen videos)
+ - Record videos via ffmpeg
+ - Save screenshots into timestamped files (e. g. `Screenshot_20160320_171923.png`)
+ - Upload your screenshots to imgur
  
 ## Dependencies
 Dependencies for taking screenshots:

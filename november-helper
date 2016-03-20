@@ -76,6 +76,10 @@ imgur() {
     if command -v "xclip" >/dev/null; then
         echo $url | xclip -selection clipboard
     fi
+
+    if command -v "notify-send" >/dev/null; then
+        notify-send 'Imgur' "Upload finished"
+    fi
 }
 
 case $1 in
