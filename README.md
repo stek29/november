@@ -1,4 +1,4 @@
-# November (WORK IN PROGRESS)
+# November
 An extremely simple screenshooting and screen recording tool (frontend for maim and ffmpeg)
 
 ![A sample screenshot](http://i.imgur.com/qiTVix7.png)
