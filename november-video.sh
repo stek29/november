@@ -37,6 +37,14 @@ depend() {
         echo "  ffmpeg, slop"
         echo "Optional dependencies:"
         echo "  notify-send (for notifications)"
+        echo
+        echo "Dependencies for helper:"
+        echo "  curl,"
+        echo "  an image viewer (preferably feh),"
+        echo "  a video player (preferably mpv)"
+        echo "  (the former are specified in ~/.november.conf)"
+        echo "Optional dependencies:"
+        echo "  xclip (for copying links to clipboard)"
         exit 1
     fi
 }

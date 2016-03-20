@@ -2,16 +2,21 @@
 
 configfile="$HOME/.november.conf"
 nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-last_path="$nov_dir/last_shot"
+last_shot_path="$nov_dir/last_shot"
+last_cast_path="$nov_dir/last_cast"
+imgur_delete_url="$nov_dir/delete_links.txt"
+imgur_api_key="35901feee992bbd"
 
 if [ "$1" == "help" ] || [ "$1" == '' ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
-    echo "November -- a simple screenshooting utility"
+    echo "November-helper"
     echo "Usage: $(basename $0) [option]"
     echo
     echo "Options:"
-    echo "  screen"
-    echo "  window"
-    echo "  selection"
+    echo "  cast - open last screencast (player specified in ~/.november.confi)"
+    echo "  shot - open last screenshot"
+    echo "  imgur - upload last screenshot to imgur and copy link"
+    echo
+    echo "All imgur image links and deletion links are stored in $nov_dir/imgur_links.txt"
     echo
     echo "You need to configure November before usage, see https://github.com/nibogd/november"
     exit
@@ -44,8 +49,7 @@ depend() {
     fi
 }
 
-depend "maim"
-depend "slop"
+depend "curl"
 
 if [ ! -f $configfile ]; then
     echo "No configuration file found, I've created one for you at $configfile"
@@ -56,44 +60,41 @@ fi
 
 source "$configfile"
 
-timestamp=$screenshot_prefix`date +%Y%m%d_%H%M%S`
-file="$screenshots_dir/$timestamp.png"
-    
+imgur() {
+    resp=`curl -H "Authorization: Client-ID $imgur_api_key" -F "image=@$1" https://api.imgur.com/3/image.xml 2>/dev/null`
+    if [ $? -ne 0 ] || [ `echo $resp | grep -c "success=\"0\""` -gt 0 ]; then
+        echo "Upload failed" >&2
+        errors=true
+        url="Upload to imgur failed"
+    else
+        url=`echo $resp | sed -rne 's/.*<link>([A-Za-z0-9:\/.]*).*/\1 /p'`
+        deleteurl="http://imgur.com/delete/`echo $resp | sed -rne 's/.*<deletehash>([A-Za-z0-9:\/.]*).*/\1 /p'`"
+        echo "$1 -- $url -- $deleteurl" >> $imgur_delete_url
+    fi
+
+
+    if command -v "xclip" >/dev/null; then
+        echo $url | xclip -selection clipboard
+    fi
+}
+
 case $1 in
-    screen)
-        maim $file
-        code=$?
-        if $screen_shadow; then
-            convert $file \( +clone -background black -shadow 80x20+0+15 \) +swap -background transparent -layers merge +repage $file 
+    shot)
+        file="`cat $last_shot_path`"
+        $image_viewer "$file" &
+        if command -v "xclip" >/dev/null; then
+            xclip -selection clipboard -t image/png < $file &
         fi
         ;;
-    window)
-        maim -i $(xdotool getactivewindow) $file
-        code=$?
-        if $window_shadow; then
-            convert $file \( +clone -background black -shadow 80x20+0+15 \) +swap -background transparent -layers merge +repage $file 
-        fi
+    cast)
+        $video_player "`cat $last_cast_path`" &
         ;;
-    selection)
-        maim -i $(xdotool getactivewindow) -s $file
-        code=$?
-        if $selection_shadow; then
-            convert $file \( +clone -background black -shadow 80x20+0+15 \) +swap -background transparent -layers merge +repage $file 
-        fi
+    imgur)
+        imgur `cat $last_shot_path`
         ;;
     *)
         echo 'Unknown option. Run -h to see help.'
         exit 1
         ;;
 esac
-
-if command -v "xclip" >/dev/null; then
-    xclip -selection clipboard -t image/png < $file
-fi
-
-if command -v "notify-send" >/dev/null; then
-   notify-send 'Screenshot' "Saved to $file!"
-fi
-echo "$file" > $last_path
-exit $code
 
