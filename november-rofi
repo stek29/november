@@ -14,7 +14,7 @@ if [ "$1" == "help" ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
     exit
 fi
 
-if ! command -v "rofu" >/dev/null; then
+if ! command -v "rofi" >/dev/null; then
    echo "You don't have rofi installed but it is required for November"
 fi
 
