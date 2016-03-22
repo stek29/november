@@ -1,0 +1,65 @@
+#!/bin/bash
+
+configfile="$HOME/.november.conf"
+nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+last_shot_path="$nov_dir/last_shot"
+last_cast_path="$nov_dir/last_cast"
+
+if [ "$1" == "help" ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    echo "November-rofi"
+    echo "Usage: $(basename $0)"
+    echo
+    echo "All imgur image links and deletion links are stored in $nov_dir/imgur_links.txt"
+    echo "You need to configure November before usage, see https://github.com/nibogd/november"
+    exit
+fi
+
+if ! command -v "rofu" >/dev/null; then
+   echo "You don't have rofi installed but it is required for November"
+fi
+
+dial() {
+   echo -e "$@" | rofi -p November -dmenu
+}
+
+selection=`dial "1. Take a full-screen shot\n\
+2. Take the current window shot\n\
+3. Take a selection shot\n\
+  ---\n\
+4. Record/stop a video\n\
+5. Record/stop a selection video\n\
+  ---\n\
+6. Open the last screenshot\n\
+7. Open the last video\n\
+8. Upload the last screenshot to Imgur"`
+
+case $selection in
+    1.*)
+        $nov_dir/november screen
+        ;;
+    2.*)
+        $nov_dir/november window
+        ;;
+    3.*)
+        $nov_dir/november selection
+        ;;
+    4.*)
+        $nov_dir/november-video toggle
+        ;;
+    5.*)
+        $nov_dir/november-video toggle-selection
+        ;;
+    6.*)
+        $nov_dir/november-helper shot
+        ;;
+    7.*)
+        $nov_dir/november-helper cast
+        ;;
+    8.*)
+        $nov_dir/november-helper imgur
+        ;;
+    *)
+        dial "You should've chosen one. Bailing out."
+        ;;
+esac
+

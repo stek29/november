@@ -70,5 +70,6 @@ Other commands you can map:
 ## Roadmap
  - [x] Add ability to record part-screen videos
  - [x] Add Imgur integration
- - [ ] Add Telegram integration
- - [ ] Add Rofi menu integration
+ - [x] Add Telegram integration
+ - [x] Add Rofi menu integration
+ - [ ] Write a Vim plugin
