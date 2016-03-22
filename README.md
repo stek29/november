@@ -78,6 +78,7 @@ to use Telegram integration.
 
  1. Create a bot using @botfather bot in Telegram
  2. Enter the bot token into `~/.november.conf` file
+ 3. Run `~/.november/november-helper telegram` once, this will create a config file
  3. Get somehow needed ids and enter them into `~/.november/telegram.txt` file like this one:
 ```
 chats["me"]=123456789
