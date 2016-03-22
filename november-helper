@@ -4,8 +4,9 @@ configfile="$HOME/.november.conf"
 nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 last_shot_path="$nov_dir/last_shot"
 last_cast_path="$nov_dir/last_cast"
-imgur_delete_url="$nov_dir/delete_links.txt"
+imgur_delete_url="$nov_dir/imgur_links.txt"
 imgur_api_key="35901feee992bbd"
+telegram_chats="$nov_dir/telegram.txt"
 
 if [ "$1" == "help" ] || [ "$1" == '' ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
     echo "November-helper"
@@ -95,6 +96,28 @@ case $1 in
         ;;
     imgur)
         imgur `cat $last_shot_path`
+        ;;
+    telegram)
+        if [ -f $telegram_chats ]; then
+            declare -A chats
+            source $telegram_chats
+            if [ "${chats["$2"]}" != "" ]; then
+                result=$(curl "https://api.telegram.org/bot$telegram_token/sendPhoto?chat_id=${chats["$2"]}" -F "photo=@`cat $nov_dir/last_shot`" 2> /dev/null)
+                if command -v "notify-send" >/dev/null; then
+                    if [ "`echo $result | grep -c '"ok":false'`" -gt 0 ]; then
+                        notify-send "Telegram" "Upload failed"
+                    else
+                        notify-send "Telegram" "Screenshot sent!"
+                    fi
+                fi
+            else
+                echo "No such chat. Please edit the $nov_dir/telegram.txt file."
+                exit 1
+            fi
+        else
+            echo "Telegram chats file doesn\'t exist. See https://github.com/nibogd/november for configuration."
+            exit 1
+        fi
         ;;
     *)
         echo 'Unknown option. Run -h to see help.'
