@@ -4,6 +4,7 @@ configfile="$HOME/.november.conf"
 nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 last_shot_path="$nov_dir/last_shot"
 last_cast_path="$nov_dir/last_cast"
+telegram_chats="$nov_dir/telegram.txt"
 
 if [ "$1" == "help" ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
     echo "November-rofi"
@@ -22,6 +23,17 @@ dial() {
    echo -e "$@" | rofi -p November -dmenu
 }
 
+dial_tg() {
+    declare -A chats
+    source $telegram_chats
+    for k in "${!chats[@]}"
+    do
+        list="$list$k\n"
+    done
+    chat=`dial "${list::-2}"`
+    $nov_dir/november-helper telegram "$chat"
+}
+
 selection=`dial "1. Take a full-screen shot\n\
 2. Take the current window shot\n\
 3. Take a selection shot\n\
@@ -31,7 +43,8 @@ selection=`dial "1. Take a full-screen shot\n\
   ---\n\
 6. Open the last screenshot\n\
 7. Open the last video\n\
-8. Upload the last screenshot to Imgur"`
+8. Upload the last screenshot to Imgur\n\
+9. Send it to Telegram"`
 
 case $selection in
     1.*)
@@ -57,6 +70,9 @@ case $selection in
         ;;
     8.*)
         $nov_dir/november-helper imgur
+        ;;
+    9.*)
+        dial_tg
         ;;
     *)
         dial "You should've chosen one. Bailing out."
