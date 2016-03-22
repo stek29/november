@@ -16,6 +16,7 @@ if [ "$1" == "help" ] || [ "$1" == '' ] || [ "$1" == "--help" ] || [ "$1" == "-h
     echo "  cast - open last screencast (player specified in ~/.november.confi)"
     echo "  shot - open last screenshot"
     echo "  imgur - upload last screenshot to imgur and copy link"
+    echo "  telegram [chat] - send last screenshot to [chat] in Telegram"
     echo
     echo "All imgur image links and deletion links are stored in $imgur_delete_url"
     echo
