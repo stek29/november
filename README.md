@@ -91,7 +91,7 @@ chats["me"]=123456789
 
 ## Rofi
 Bind a key to `~/.november/november-rofi` (you must have `rofi` installed). After pressing that key a dialog will appear:
-![rofi](http://i.imgur.com/i6Pq2QY.png)
+![rofi](http://i.imgur.com/CV1CmbO.png)
 
 November uses your system rofi settings (colors, placement, etc). See [rofi homepage](https://davedavenport.github.io/rofi/).
 
