@@ -10,6 +10,7 @@ An extremely simple screenshooting and screen recording tool (frontend for maim 
  - Record videos via ffmpeg
  - Save screenshots into timestamped files (e. g. `Screenshot_20160320_171923.png`)
  - Upload your screenshots to imgur
+ - Send your screenshots to a group, a channel or a human in Telegram directly from November
  
 ## Dependencies
 Dependencies for taking screenshots:
@@ -66,6 +67,32 @@ Other commands you can map:
  - `$HOME/.november/november-helper imgur`: will upload the last taken screenshot to imgur and copy the link to the clipboard (and insert a filepath, an imgur link and a deletion link to `$HOME/.november/imgur_links.txt`)
  - `$HOME/.november/november-helper shot`: will open last screenshot with an image viewer selected in `.november.conf`
  - `$HOME/.november/november-helper cast`: will open last screencast with a video player selected in `.november.conf`
+
+## Imgur
+Use `~/.november/november-helper imgur` (bind a key or an alias for that). It will upload the latest screenshot to imgur and copy the link to clipboard. You can find all links (and deletion links!) in `~/.november/imgur_links.txt`.
+
+## Telegram
+### How to use:
+You must fill in your groups', channels' or people's ids
+to use Telegram integration.
+
+ 1. Create a bot using @botfather bot in Telegram
+ 2. Enter the bot token into `~/.november.conf` file
+ 3. Get somehow needed ids and enter them into `~/.november/telegram.txt` file like this one:
+```
+chats["me"]=123456789
+```
+ 4. Send screenshots to them via `~/.november/november-helper telegram me`
+
+### How to get the ids:
+ - Use the web-version of telegram, the id will be visible in the address bar
+ - Use a bot which tells you your id (you can search for them at http://storebot.me)
+
+## Rofi
+Bind a key to `~/.november/november-rofi` (you must have `rofi` installed). After pressing that key a dialog will appear:
+![rofi](http://i.imgur.com/i6Pq2QY.png)
+
+November uses your system rofi settings (colors, placement, etc). See [rofi homepage](https://davedavenport.github.io/rofi/).
 
 ## Roadmap
  - [x] Add ability to record part-screen videos
