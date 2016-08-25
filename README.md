@@ -13,26 +13,27 @@ An extremely simple screenshooting and screen recording tool (frontend for maim 
  - Send your screenshots to a group, a channel or a human in Telegram directly from November
  
 ## Dependencies
+
 Dependencies for taking screenshots:
  - maim
  - slop
-
-Optional dependencies:
- - xclip (for copying to clipboard)
- - imagemagick (for shadows on screenshots)
- - notify-send (for notifications)
+ - xclip (optional, for copying to clipboard)
+ - imagemagick (optional, for shadows)
+ - notify-send (optional, for notifications)
 
 Dependencies for recording videos:
  - ffmpeg
+ - slop
+ - xdpyinfo
+ - notify-send (optional, for notifications)
 
-Optional dependencies:
- - notify-send (for notifications)
-
-Dependencies for the helper (imgur upload, etc):
+Dependencies for helper:
  - curl
-Optional dependencies:
- - xclip
+ - an image viewer (preferably feh) and a video player (preferably mpv)
+   (the former are specified in ~/.november.conf)
+ - xclip (optional, for copying links to clipboard)
  
+
 ## Installation
 Install the dependencies (read above)
 
