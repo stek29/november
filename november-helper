@@ -79,12 +79,37 @@ imgur() {
         echo "$1 -- $url -- $deleteurl" >> $imgur_delete_url
     fi
 
-
+    
     if command -v "xclip" >/dev/null; then
         echo $url | xclip -selection clipboard
     fi
 
     notify "Imgur" "Upload finished!"
+}
+
+telegram() {
+    # $1 -- chat name (as in $telegram_chats)
+    # $2 -- Photo or Document or Video
+    # $3 -- file name 
+    if [ -f $telegram_chats ]; then
+        declare -A chats
+        source $telegram_chats
+        if [ "${chats["$1"]}" != "" ]; then
+            result=$(curl "https://api.telegram.org/bot$telegram_token/send$2?chat_id=${chats["$1"]}" -F "${2,,}=@$3" 2> /dev/null)
+            if [ "`echo $result | grep -c '"ok":false'`" -gt 0 ]; then
+                notify "Telegram" "Upload failed"
+            else
+                notify "Telegram" "$2 sent!"
+            fi
+        else
+            echo "No such chat $1. Please edit the $telegram_chats file."
+            exit 1
+        fi
+    else
+        cp $nov_dir/november-telegram.sample.conf $telegram_chats
+        echo "I've created a configuration file for Telegram chats at $telegram_chats. Please edit it and come back!"
+        exit 1
+    fi
 }
 
 case $1 in
@@ -102,25 +127,26 @@ case $1 in
         imgur `cat $last_shot_path`
         ;;
     telegram)
-        if [ -f $telegram_chats ]; then
-            declare -A chats
-            source $telegram_chats
-            if [ "${chats["$2"]}" != "" ]; then
-                result=$(curl "https://api.telegram.org/bot$telegram_token/sendPhoto?chat_id=${chats["$2"]}" -F "photo=@`cat $nov_dir/last_shot`" 2> /dev/null)
-                if [ "`echo $result | grep -c '"ok":false'`" -gt 0 ]; then
-                    notify "Telegram" "Upload failed"
-                else
-                    notify "Telegram" "Screenshot sent!"
-                fi
-            else
-                echo "No such chat. Please edit the $telegram_chats file."
-                exit 1
-            fi
-        else
-            cp $nov_dir/november-telegram.sample.conf $telegram_chats
-            echo "I've created a configuration file for Telegram chats at $telegram_chats. Please edit it and come back!"
-            exit 1
-        fi
+        case $3 in
+	    cast)
+		send_what=Video
+		filename="`cat $last_cast_path`"
+		;;
+	    shot|'')
+	    	send_what=Photo
+		filename="`cat $last_shot_path`"
+		;;
+	    *)
+	        echo "Unknown attachment type. Can be cast or shot|*empty*, not $3"
+		exit 1
+		;;
+        esac
+
+        if [ "$4" = "as_doc" ]; then
+            send_what=Document
+	fi
+
+        telegram $2 $send_what $filename
         ;;
     *)
         echo 'Unknown option. Run -h to see help.'

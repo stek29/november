@@ -13,26 +13,27 @@ An extremely simple screenshooting and screen recording tool (frontend for maim 
  - Send your screenshots to a group, a channel or a human in Telegram directly from November
  
 ## Dependencies
+
 Dependencies for taking screenshots:
  - maim
  - slop
-
-Optional dependencies:
- - xclip (for copying to clipboard)
- - imagemagick (for shadows on screenshots)
- - notify-send (for notifications)
+ - xclip (optional, for copying to clipboard)
+ - imagemagick (optional, for shadows)
+ - notify-send (optional, for notifications)
 
 Dependencies for recording videos:
  - ffmpeg
+ - slop
+ - xdpyinfo
+ - notify-send (optional, for notifications)
 
-Optional dependencies:
- - notify-send (for notifications)
-
-Dependencies for the helper (imgur upload, etc):
+Dependencies for helper:
  - curl
-Optional dependencies:
- - xclip
+ - an image viewer (preferably feh) and a video player (preferably mpv)
+   (the former are specified in ~/.november.conf)
+ - xclip (optional, for copying links to clipboard)
  
+
 ## Installation
 Install the dependencies (read above)
 
@@ -79,11 +80,17 @@ to use Telegram integration.
  1. Create a bot using @botfather bot in Telegram
  2. Enter the bot token into `~/.november.conf` file
  3. Run `~/.november/november-helper telegram` once, this will create a config file
- 3. Get somehow needed ids and enter them into `~/.november/telegram.txt` file like this one:
+ 4. Get somehow needed ids and enter them into `~/.november/telegram.txt` file like this one:
 ```
 chats["me"]=123456789
 ```
- 4. Send screenshots to them via `~/.november/november-helper telegram me`
+ 5. Send screenshots to them via `~/.november/november-helper telegram me [cast|shot] [as_doc]`
+
+Options: 
+ - `cast` or `shot` specify attachment type, default is `shot`
+ - `as_doc` allows to send file as document
+
+
 
 ### How to get the ids:
  - Use the web-version of telegram, the id will be visible in the address bar
