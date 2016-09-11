@@ -1,0 +1,89 @@
+#!/bin/bash
+
+move() {
+    [ -f "$1" ] && mv "$1" "$2" && echo "$1 moved to $2"
+}
+
+config_dir="$HOME/.november"
+configfile="$config_dir/november.conf"
+
+checkconf() {
+    if [ ! -f "$configfile" ]; then
+        mkdir -p "$config_dir"
+        if [ "$?" -ne "0" ]; then
+            echo "Can't create directory for november ($configdir)"
+            echo "Please create it and start November again"
+            exit 1
+        fi
+
+        if [ -f "$HOME/.november.conf" ]; then
+            echo "Notice: November files were moved since last update"
+            echo "Trying to move automatically"
+            move "$HOME/.november.conf" "${configfile}-old"
+            move "$nov_dir/last_shot" "$config_dir/last_shot"
+            move "$nov_dir/last_cast" "$config_dir/last_cast"
+            move "$nov_dir/imgur_links.txt" "$config_dir/imgur_links.txt"
+            move "$nov_dir/ffmpeg_pid" "$config_dir/ffmpeg_pid"
+            move "$nov_dir/telegram.txt" "$config_dir/telegram.txt"
+	    cp "$nov_dir/november.sample.conf" "${configfile}-new"
+	    echo "Now please compare ${configfile}-old and $configfile"
+	    echo "Edit configuration and start November again"
+	    exit 1
+        else
+            echo "No configuration file found, I've created one for you at $configfile"
+            echo "Please edit the configuration and start November again"
+            cp "$nov_dir/november.sample.conf" "$configfile"
+            exit 1
+        fi
+    fi
+}
+
+depend() {
+    if ! command -v "$1" >/dev/null; then
+        echo "You don't have $1 installed but it is required for November"
+        echo
+        echo "Dependencies for taking screenshots:"
+        echo "  maim, slop"
+        echo "Optional dependencies:"
+        echo "  xclip (for copying to clipboard),"
+        echo "  imagemagick (for shadows on screenshots),"
+        echo "  notify-send (for notifications)"
+        echo
+        echo "Dependencies for recording videos:"
+        echo "  ffmpeg, slop"
+        echo "Optional dependencies:"
+        echo "  notify-send (for notifications)"
+        echo
+        echo "Dependencies for helper:"
+        echo "  curl,"
+        echo "  an image viewer (preferably feh),"
+        echo "  a video player (preferably mpv)"
+        echo "  (the former are specified in ~/.november.conf)"
+        echo "Optional dependencies:"
+        echo "  xclip (for copying links to clipboard)"
+	echo
+	echo "Dependencies for rofi:"
+	echo "  rofi"
+        exit 1
+    fi
+}
+ishelp() {
+    [ "$1" == "help" -o "$1" == '' -o "$1" == "--help" -o "$1" == "-h" ]
+    return $?
+}
+run_if_exists() {
+    command="$1"
+    shift
+    if command -v "$command" >/dev/null; then
+        $command "$@"
+	return $?
+    else
+	return 1
+    fi
+}
+notify() {
+    run_if_exists notify-send "$1" "$2"
+}
+clip() {
+   run_if_exists xclip -selection clipboard $@
+}

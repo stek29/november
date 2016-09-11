@@ -1,23 +1,21 @@
 #!/bin/bash
 
-configfile="$HOME/.november.conf"
 nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-last_shot_path="$nov_dir/last_shot"
-last_cast_path="$nov_dir/last_cast"
-telegram_chats="$nov_dir/telegram.txt"
+source "$nov_dir/november-init"
 
 if [ "$1" == "help" ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
     echo "November-rofi"
     echo "Usage: $(basename $0)"
     echo
-    echo "All imgur image links and deletion links are stored in $nov_dir/imgur_links.txt"
+    echo "All imgur image links and deletion links are stored in $config_dir/imgur_links.txt"
     echo "You need to configure November before usage, see https://github.com/nibogd/november"
     exit
 fi
 
-if ! command -v "rofi" >/dev/null; then
-   echo "You don't have rofi installed but it is required for November"
-fi
+depend "rofi"
+
+checkconf
+source "$configfile"
 
 dial() {
    echo -e "$@" | rofi -p November -dmenu
@@ -25,7 +23,7 @@ dial() {
 
 dial_tg() {
     declare -A chats
-    source $telegram_chats
+    source "$telegram_chats"
     for k in "${!chats[@]}"
     do
         list="$list$k\n"

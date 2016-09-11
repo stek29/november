@@ -1,14 +1,9 @@
 #!/bin/bash
 
-configfile="$HOME/.november.conf"
 nov_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-last_shot_path="$nov_dir/last_shot"
-last_cast_path="$nov_dir/last_cast"
-imgur_delete_url="$nov_dir/imgur_links.txt"
-imgur_api_key="35901feee992bbd"
-telegram_chats="$nov_dir/telegram.txt"
+source "$nov_dir/november-init"
 
-if [ "$1" == "help" ] || [ "$1" == '' ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+if ishelp $1; then
     echo "November-helper"
     echo "Usage: $(basename $0) [option]"
     echo
@@ -24,49 +19,12 @@ if [ "$1" == "help" ] || [ "$1" == '' ] || [ "$1" == "--help" ] || [ "$1" == "-h
     exit
 fi
 
-depend() {
-    if ! command -v "$1" >/dev/null; then
-        echo "You don't have $1 installed but it is required for November"
-        echo
-        echo "Dependencies for taking screenshots:"
-        echo "  maim, slop"
-        echo "Optional dependencies:"
-        echo "  xclip (for copying to clipboard),"
-        echo "  imagemagick (for shadows on screenshots),"
-        echo "  notify-send (for notifications)"
-        echo
-        echo "Dependencies for recording videos:"
-        echo "  ffmpeg, slop"
-        echo "Optional dependencies:"
-        echo "  notify-send (for notifications)"
-        echo
-        echo "Dependencies for helper:"
-        echo "  curl,"
-        echo "  an image viewer (preferably feh),"
-        echo "  a video player (preferably mpv)"
-        echo "  (the former are specified in ~/.november.conf)"
-        echo "Optional dependencies:"
-        echo "  xclip (for copying links to clipboard)"
-        exit 1
-    fi
-}
-
 depend "curl"
 
-if [ ! -f $configfile ]; then
-    echo "No configuration file found, I've created one for you at $configfile"
-    echo "Please edit the configuration and start November again"
-    cp "$nov_dir/november.sample.conf" "$configfile"
-    exit 1
-fi
-
+checkconf
 source "$configfile"
 
-notify() {
-    if command -v "notify-send" >/dev/null; then
-        notify-send "$1" "$2"
-    fi
-}
+
 imgur() {
     resp=`curl -H "Authorization: Client-ID $imgur_api_key" -F "image=@$1" https://api.imgur.com/3/image.xml 2>/dev/null`
     if [ $? -ne 0 ] || [ `echo $resp | grep -c "success=\"0\""` -gt 0 ]; then
@@ -80,9 +38,7 @@ imgur() {
     fi
 
     
-    if command -v "xclip" >/dev/null; then
-        echo $url | xclip -selection clipboard
-    fi
+    echo $url | clip 
 
     notify "Imgur" "Upload finished!"
 }
@@ -93,7 +49,7 @@ telegram() {
     # $3 -- file name 
     if [ -f $telegram_chats ]; then
         declare -A chats
-        source $telegram_chats
+        source "$telegram_chats"
         if [ "${chats["$1"]}" != "" ]; then
             result=$(curl "https://api.telegram.org/bot$telegram_token/send$2?chat_id=${chats["$1"]}" -F "${2,,}=@$3" 2> /dev/null)
             if [ "`echo $result | grep -c '"ok":false'`" -gt 0 ]; then
@@ -116,9 +72,7 @@ case $1 in
     shot)
         file="`cat $last_shot_path`"
         $image_viewer "$file" &
-        if command -v "xclip" >/dev/null; then
-            xclip -selection clipboard -t image/png < $file &
-        fi
+        clip -t image/png < $file &
         ;;
     cast)
         $video_player "`cat $last_cast_path`" &
