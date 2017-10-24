@@ -41,7 +41,7 @@ case $1 in
         shadow=$window_shadow
         ;;
     selection)
-        maim -i $(xdotool getactivewindow) -s $file
+        maim -s $file
         code=$?
         shadow=$selection_shadow
         ;;
